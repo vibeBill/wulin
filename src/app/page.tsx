@@ -67,7 +67,7 @@ export default function Home() {
                 className={`${index === selectIndex ? styles.active : ""}`}
                 key={index}
                 props={item}
-                handleClick={() => handleClick(index)}
+                handleClick={handleClick}
               />
             ))}
           </div>
