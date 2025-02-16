@@ -8,56 +8,33 @@ import data from "./data";
 
 export default function Home() {
   const [selectIndex, setSelectIndex] = useState(0);
-  const [history, setHistory] = useState<number[]>([0]); // 用栈存储历史操作
-
+  const [history, setHistory] = useState<number[]>([0]);
+  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    const handleUserInteraction = () => {
-      if (audioRef.current) {
-        audioRef.current.play().catch((error) => {
-          console.log("Playback failed:", error);
-        });
-      }
-      // 移除事件监听器，因为我们只需要触发一次
-      ["click", "touchstart", "keydown"].forEach((event) => {
-        document.removeEventListener(event, handleUserInteraction);
-      });
-    };
+  // 统一处理音频播放
+  const playAudio = () => {
+    if (!audioRef.current || !isFirstInteraction) return;
 
-    // 添加多个事件监听器来检测用户交互
-    ["click", "touchstart", "keydown"].forEach((event) => {
-      document.addEventListener(event, handleUserInteraction);
-    });
-
-    // 尝试直接播放
-    if (audioRef.current) {
-      audioRef.current.play().catch((error) => {
-        console.log("Auto-play failed, waiting for user interaction");
-      });
-    }
-
-    // 清理函数
-    return () => {
-      ["click", "touchstart", "keydown"].forEach((event) => {
-        document.removeEventListener(event, handleUserInteraction);
-      });
-    };
-  }, []);
+    audioRef.current
+      .play()
+      .then(() => setIsFirstInteraction(false))
+      .catch((error) => console.log("播放失败:", error));
+  };
 
   const handleClick = (index: number) => {
+    playAudio();
     setSelectIndex(index);
-    setHistory((prev) => [...prev, index]); // 将新操作推入历史栈
+    setHistory((prev) => [...prev, index]);
   };
 
   const handleUndo = () => {
-    if (history.length <= 1) return; // 如果只有初始状态，不执行撤回
+    if (history.length <= 1) return;
 
+    playAudio();
     const newHistory = [...history];
-    newHistory.pop(); // 移除最后一个操作
-    const previousIndex = newHistory[newHistory.length - 1]; // 获取上一个状态的索引
-
-    setSelectIndex(previousIndex);
+    newHistory.pop();
+    setSelectIndex(newHistory[newHistory.length - 1]);
     setHistory(newHistory);
   };
 
@@ -68,7 +45,9 @@ export default function Home() {
         src="/audio/bgm.mp3"
         loop
         preload="auto"
-        playsInline // 对iOS设备很重要
+        playsInline
+        // 添加 muted 属性解决 iOS 自动播放限制
+        muted={isFirstInteraction}
       />
       <div className={styles.page}>
         <div className={styles.container}>
@@ -83,15 +62,14 @@ export default function Home() {
           </div>
 
           <div className={styles.content}>
-            {data &&
-              data.map((item, index) => (
-                <Section
-                  className={`${index === selectIndex ? styles.active : null}`}
-                  key={index}
-                  props={item}
-                  handleClick={handleClick}
-                />
-              ))}
+            {data?.map((item, index) => (
+              <Section
+                className={`${index === selectIndex ? styles.active : ""}`}
+                key={index}
+                props={item}
+                handleClick={() => handleClick(index)}
+              />
+            ))}
           </div>
         </div>
       </div>
