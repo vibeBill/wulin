@@ -18,7 +18,11 @@ export default function Home() {
     const audioContext = new AudioContext();
     const source = audioContext.createBufferSource();
     // 加载音频文件
-    fetch("/audio/bgm.mp3")
+    fetch("/audio/bgm.mp3", {
+      headers: {
+        "Content-Type": "audio/mpeg",
+      },
+    })
       .then((response) => response.arrayBuffer())
       .then((arrayBuffer) => audioContext.decodeAudioData(arrayBuffer))
       .then((audioBuffer) => {
