@@ -72,3 +72,24 @@
 .active {
   display: block !important;
 }
+
+.audioButton {
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audioButton:hover {
+  opacity: 0.8;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

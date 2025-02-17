@@ -29,7 +29,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/1-2.jpg",
+      url: "/images/1-2.webp",
       width: 1453,
       height: 909,
     },
@@ -53,7 +53,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/1-2.jpg",
+      url: "/images/1-2.webp",
       width: 1453,
       height: 909,
     },
@@ -77,7 +77,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/3.jpg",
+      url: "/images/3.webp",
       width: 1024,
       height: 1272,
     },
@@ -101,7 +101,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/4.jpg",
+      url: "/images/4.webp",
       width: 2884,
       height: 2560,
     },
@@ -125,7 +125,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/5.jpg",
+      url: "/images/5.webp",
       width: 1540,
       height: 1024,
     },
@@ -148,7 +148,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/6.jpg",
+      url: "/images/6.webp",
       width: 1080,
       height: 640,
     },
@@ -172,7 +172,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/7.jpg",
+      url: "/images/7.webp",
       width: 690,
       height: 329,
     },
@@ -196,7 +196,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/8.jpg",
+      url: "/images/8.webp",
       width: 1846,
       height: 1224,
     },
@@ -212,7 +212,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/end1.jpg",
+      url: "/images/end1.webp",
       width: 1024,
       height: 1024,
     },
@@ -228,7 +228,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/end2.jpg",
+      url: "/images/end2.webp",
       width: 1628,
       height: 1024,
     },
@@ -244,7 +244,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/end3.jpg",
+      url: "/images/end3.webp",
       width: 2400,
       height: 1596,
     },
@@ -260,7 +260,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/end4.jpg",
+      url: "/images/end4.webp",
       width: 1818,
       height: 970,
     },
@@ -276,7 +276,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/end5.jpg",
+      url: "/images/end5.webp",
       width: 1538,
       height: 1024,
     },
@@ -292,7 +292,7 @@ const data = [
       },
     ],
     image: {
-      url: "/images/end6.jpg",
+      url: "/images/end6.webp",
       width: 1642,
       height: 1024,
     },
