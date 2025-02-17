@@ -1,18 +1,29 @@
 .page {
   background-color: #f9fafb;
-  padding: 40px 20px;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
+  position: relative;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .header {
   position: fixed;
-  top: 60px;
-  right: 60px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 24px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 64px auto 0;
 }
 
 .title {
@@ -53,7 +64,6 @@
 
 .content {
   background-color: white;
-  border-radius: 0.5rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -61,11 +71,6 @@
 @media (max-width: 1024px) {
   .page {
     padding: 1rem 0.5rem;
-  }
-
-  .header {
-    top: 24px;
-    right: 20px;
   }
 }
 
@@ -86,10 +91,4 @@
 
 .audioButton:hover {
   opacity: 0.8;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }

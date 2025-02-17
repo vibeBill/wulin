@@ -124,28 +124,27 @@ export default function Home() {
         onError={handleAudioError}
       />
       <div className={styles.page} onClick={handleUserInteraction}>
-        <div className={styles.container}>
-          <div className={styles.header}>
+        <div className={styles.header}>
+          <button
+            onClick={handleUndo}
+            disabled={history.length <= 1}
+            className={styles.undoButton}
+          >
+            <Undo2 size={20} />
+          </button>
+          {isAudioReady && (
             <button
-              onClick={handleUndo}
-              disabled={history.length <= 1}
-              className={styles.undoButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleAudio();
+              }}
+              className={styles.audioButton}
             >
-              <Undo2 size={20} />
+              {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
             </button>
-            {isAudioReady && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleAudio();
-                }}
-                className={styles.audioButton}
-              >
-                {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
-              </button>
-            )}
-          </div>
-
+          )}
+        </div>
+        <div className={styles.container}>
           <div className={styles.content}>
             {data?.map((item, index) => (
               <Section
