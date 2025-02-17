@@ -26,6 +26,9 @@ export default function Home() {
     playAudio();
     setSelectIndex(index);
     setHistory((prev) => [...prev, index]);
+    if (index === 0) {
+      setHistory([0]);
+    }
   };
 
   const handleUndo = () => {
@@ -49,7 +52,7 @@ export default function Home() {
         // 添加 muted 属性解决 iOS 自动播放限制
         muted={isFirstInteraction}
       />
-      <div className={styles.page}>
+      <div className={styles.page} onTouchStart={playAudio}>
         <div className={styles.container}>
           <div className={styles.header}>
             <button
