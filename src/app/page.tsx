@@ -6,36 +6,57 @@ import styles from "./page.module.css";
 import Section from "./components/Section";
 import data from "./data";
 
+type AudioContextType = typeof AudioContext;
+interface Window {
+  webkitAudioContext: AudioContextType;
+}
+
 export default function Home() {
-  const [selectIndex, setSelectIndex] = useState(0);
+  const [selectIndex, setSelectIndex] = useState<number>(0);
   const [history, setHistory] = useState<number[]>([0]);
-  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const [isAudioInitialized, setIsAudioInitialized] = useState<boolean>(false);
 
-  // 统一处理音频播放
-  const playAudio = () => {
-    if (!isFirstInteraction) return;
+  const initializeAudio = async (): Promise<void> => {
+    if (isAudioInitialized) return;
 
-    const audioContext = new AudioContext();
-    const source = audioContext.createBufferSource();
-    // 加载音频文件
-    fetch("/audio/bgm.mp3", {
-      headers: {
-        "Content-Type": "audio/mpeg",
-      },
-    })
-      .then((response) => response.arrayBuffer())
-      .then((arrayBuffer) => audioContext.decodeAudioData(arrayBuffer))
-      .then((audioBuffer) => {
-        source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
-        source.start(0);
-        setIsFirstInteraction(false);
-      })
-      .catch((error) => console.log("播放失败:", error));
+    try {
+      // 使用类型断言来处理 AudioContext
+      const AudioContextClass = (window.AudioContext ||
+        (window as any).webkitAudioContext) as AudioContextType;
+      audioContextRef.current = new AudioContextClass();
+
+      // 加载音频文件
+      const response = await fetch("/audio/bgm.mp3");
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContextRef.current.decodeAudioData(
+        arrayBuffer
+      );
+
+      // 创建音频源
+      audioSourceRef.current = audioContextRef.current.createBufferSource();
+      audioSourceRef.current.buffer = audioBuffer;
+      audioSourceRef.current.connect(audioContextRef.current.destination);
+      audioSourceRef.current.loop = true;
+
+      // 开始播放
+      audioSourceRef.current.start(0);
+      setIsAudioInitialized(true);
+    } catch (error) {
+      console.error("Audio initialization failed:", error);
+    }
   };
 
-  const handleClick = (index: number) => {
-    playAudio();
+  const handleUserInteraction = (): void => {
+    if (audioContextRef.current?.state === "suspended") {
+      audioContextRef.current.resume();
+    }
+    initializeAudio();
+  };
+
+  const handleClick = (index: number): void => {
+    handleUserInteraction();
     setSelectIndex(index);
     setHistory((prev) => [...prev, index]);
     if (index === 0) {
@@ -43,19 +64,35 @@ export default function Home() {
     }
   };
 
-  const handleUndo = () => {
+  const handleUndo = (): void => {
     if (history.length <= 1) return;
 
-    playAudio();
+    handleUserInteraction();
     const newHistory = [...history];
     newHistory.pop();
     setSelectIndex(newHistory[newHistory.length - 1]);
     setHistory(newHistory);
   };
 
+  useEffect(() => {
+    return () => {
+      if (audioSourceRef.current) {
+        audioSourceRef.current.stop();
+        audioSourceRef.current.disconnect();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
   return (
     <>
-      <div className={styles.page} onTouchStart={playAudio}>
+      <div
+        className={styles.page}
+        onTouchStart={handleUserInteraction}
+        onClick={handleUserInteraction}
+      >
         <div className={styles.container}>
           <div className={styles.header}>
             <button
