@@ -12,58 +12,74 @@ export default function Home() {
   const [isAudioReady, setIsAudioReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
 
-  // 初始化 AudioContext
-  const initializeAudioContext = async () => {
-    try {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
-      }
-      if (audioContextRef.current.state === "suspended") {
-        await audioContextRef.current.resume();
-      }
-    } catch (error) {
-      console.error("AudioContext initialization failed:", error);
+  const [notSupport, setNotSupport] = useState(false);
+
+  // 初始化音频
+  const initializeAudio = () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.src = "/audio/bgm.mp3";
+      audioRef.current.preload = "auto";
+      audioRef.current.loop = true;
+
+      // 添加事件监听器
+      audioRef.current.addEventListener("loadeddata", handleAudioLoad);
+      audioRef.current.addEventListener("error", handleAudioError);
+      audioRef.current.addEventListener("canplaythrough", handleCanPlayThrough);
+      audioRef.current.addEventListener("playing", () => setIsPlaying(true));
+      audioRef.current.addEventListener("pause", () => setIsPlaying(false));
     }
   };
 
-  // 处理音频加载
+  // 处理音频加载完成
   const handleAudioLoad = () => {
     setIsAudioReady(true);
   };
 
+  // 处理音频可以播放
+  const handleCanPlayThrough = () => {
+    setIsAudioReady(true);
+  };
+
   // 处理音频错误
-  const handleAudioError = (e: any) => {
-    console.error("Audio loading error:", e);
+  const handleAudioError = (e: Event) => {
+    const target = e.target as HTMLAudioElement;
+    console.error("Audio loading error:", {
+      error: target.error,
+      readyState: target.readyState,
+      networkState: target.networkState,
+      src: target.src,
+    });
     setIsAudioReady(false);
+    setNotSupport(true);
   };
 
   // 处理用户交互
   const handleUserInteraction = async () => {
+    if (!audioRef.current) return;
+
     try {
-      await initializeAudioContext();
-      if (audioRef.current) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true);
-            })
-            .catch((error) => {
-              console.error("Playback failed:", error);
-              setIsPlaying(false);
-            });
-        }
+      // 重新加载音频
+      audioRef.current.load();
+
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+        setIsPlaying(true);
       }
     } catch (error) {
-      console.error("Audio playback failed:", error);
+      console.error("Playback failed:", error);
+      setIsPlaying(false);
+
+      // 如果播放失败，尝试重新初始化
+      initializeAudio();
     }
   };
 
   // 切换音频播放状态
-  const toggleAudio = async () => {
+  const toggleAudio = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!audioRef.current) return;
 
     if (isPlaying) {
@@ -94,55 +110,52 @@ export default function Home() {
     setHistory(newHistory);
   };
 
+  // 初始化
   useEffect(() => {
-    // 预加载音频
-    if (audioRef.current) {
-      audioRef.current.load();
-    }
+    initializeAudio();
 
     // 清理函数
     return () => {
       if (audioRef.current) {
+        audioRef.current.removeEventListener("loadeddata", handleAudioLoad);
+        audioRef.current.removeEventListener("error", handleAudioError);
+        audioRef.current.removeEventListener(
+          "canplaythrough",
+          handleCanPlayThrough
+        );
         audioRef.current.pause();
         audioRef.current.src = "";
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
       }
     };
   }, []);
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        src="/audio/bgm.mp3"
-        preload="auto"
-        loop
-        playsInline
-        onLoadedData={handleAudioLoad}
-        onError={handleAudioError}
-      />
       <div className={styles.page} onClick={handleUserInteraction}>
         <div className={styles.header}>
+          {isAudioReady ? (
+            <button
+              onClick={toggleAudio}
+              className={styles.audioButton}
+              aria-label={isPlaying ? "Pause audio" : "Play audio"}
+            >
+              {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            </button>
+          ) : notSupport ? (
+            <p>当前浏览器不支持播放背景音乐</p>
+          ) : (
+            <p>背景音乐加载中。。。</p>
+          )}
           <button
-            onClick={handleUndo}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleUndo();
+            }}
             disabled={history.length <= 1}
             className={styles.undoButton}
           >
             <Undo2 size={20} />
           </button>
-          {isAudioReady && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleAudio();
-              }}
-              className={styles.audioButton}
-            >
-              {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
-            </button>
-          )}
         </div>
         <div className={styles.container}>
           <div className={styles.content}>
