@@ -13,6 +13,8 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const [firstInteraction, setFirstInteraction] = useState(true);
+
   const [notSupport, setNotSupport] = useState(false);
 
   // 初始化音频
@@ -77,6 +79,12 @@ export default function Home() {
     }
   };
 
+  const handleUserClick = async () => {
+    if (!firstInteraction) return;
+    await handleUserInteraction();
+    setFirstInteraction(false);
+  };
+
   // 切换音频播放状态
   const toggleAudio = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -131,7 +139,7 @@ export default function Home() {
 
   return (
     <>
-      <div className={styles.page} onClick={handleUserInteraction}>
+      <div className={styles.page} onClick={handleUserClick}>
         <div className={styles.header}>
           {isAudioReady ? (
             <button
