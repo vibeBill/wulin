@@ -10,15 +10,23 @@ export default function Home() {
   const [selectIndex, setSelectIndex] = useState(0);
   const [history, setHistory] = useState<number[]>([0]);
   const [isFirstInteraction, setIsFirstInteraction] = useState(true);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   // 统一处理音频播放
   const playAudio = () => {
-    if (!audioRef.current || !isFirstInteraction) return;
+    if (!isFirstInteraction) return;
 
-    audioRef.current
-      .play()
-      .then(() => setIsFirstInteraction(false))
+    const audioContext = new AudioContext();
+    const source = audioContext.createBufferSource();
+    // 加载音频文件
+    fetch("/audio/bgm.mp3")
+      .then((response) => response.arrayBuffer())
+      .then((arrayBuffer) => audioContext.decodeAudioData(arrayBuffer))
+      .then((audioBuffer) => {
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+        setIsFirstInteraction(false);
+      })
       .catch((error) => console.log("播放失败:", error));
   };
 
@@ -43,15 +51,6 @@ export default function Home() {
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        src="/audio/bgm.mp3"
-        loop
-        preload="auto"
-        playsInline
-        // 添加 muted 属性解决 iOS 自动播放限制
-        muted={isFirstInteraction}
-      />
       <div className={styles.page} onTouchStart={playAudio}>
         <div className={styles.container}>
           <div className={styles.header}>
